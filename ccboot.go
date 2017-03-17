@@ -45,38 +45,45 @@ const (
 	CC_NACK byte = 0x33
 )
 
+// Command represents the command byte sent to the target
+type Command byte
+
+// Command constants
 const (
-	CC_COMMAND_PING         byte = 0x20
-	CC_COMMAND_DOWNLOAD     byte = 0x21
-	CC_COMMAND_GET_STATUS   byte = 0x23
-	CC_COMMAND_SEND_DATA    byte = 0x24
-	CC_COMMAND_RESET        byte = 0x25
-	CC_COMMAND_SECTOR_ERASE byte = 0x26
-	CC_COMMAND_CRC32        byte = 0x27
-	CC_COMMAND_GET_CHIP_ID  byte = 0x28
-	CC_COMMAND_MEMORY_READ  byte = 0x2A
-	CC_COMMAND_MEMORY_WRITE byte = 0x2B
-	CC_COMMAND_BANK_ERASE   byte = 0x2C
-	CC_COMMAND_SET_CCFG     byte = 0x2D
+	CC_COMMAND_PING         = Command(0x20)
+	CC_COMMAND_DOWNLOAD     = Command(0x21)
+	CC_COMMAND_GET_STATUS   = Command(0x23)
+	CC_COMMAND_SEND_DATA    = Command(0x24)
+	CC_COMMAND_RESET        = Command(0x25)
+	CC_COMMAND_SECTOR_ERASE = Command(0x26)
+	CC_COMMAND_CRC32        = Command(0x27)
+	CC_COMMAND_GET_CHIP_ID  = Command(0x28)
+	CC_COMMAND_MEMORY_READ  = Command(0x2A)
+	CC_COMMAND_MEMORY_WRITE = Command(0x2B)
+	CC_COMMAND_BANK_ERASE   = Command(0x2C)
+	CC_COMMAND_SET_CCFG     = Command(0x2D)
 )
 
-type Status byte
+var cmd2String = map[Command]string{
+	CC_COMMAND_PING:         "COMMAND_PING",
+	CC_COMMAND_DOWNLOAD:     "COMMAND_DOWNLOAD",
+	CC_COMMAND_GET_STATUS:   "COMMAND_GET_STATUS",
+	CC_COMMAND_SEND_DATA:    "COMMAND_SEND_DATA",
+	CC_COMMAND_RESET:        "COMMAND_RESET",
+	CC_COMMAND_SECTOR_ERASE: "COMMAND_SECTOR_ERASE",
+	CC_COMMAND_CRC32:        "COMMAND_CRC32",
+	CC_COMMAND_GET_CHIP_ID:  "COMMAND_GET_CHIP_ID",
+	CC_COMMAND_MEMORY_READ:  "COMMAND_MEMORY_READ",
+	CC_COMMAND_MEMORY_WRITE: "COMMAND_MEMORY_WRITE",
+	CC_COMMAND_BANK_ERASE:   "COMMAND_BANK_ERASE",
+	CC_COMMAND_SET_CCFG:     "COMMAND_SET_CCFG",
+}
 
-func (s Status) GetString() string {
-	switch s {
-	case CC_COMMAND_RET_SUCCESS:
-		return "SUCCESS"
-	case CC_COMMAND_RET_UNKNOW_CMD:
-		return "UNKNOWN_CMD"
-	case CC_COMMAND_RET_INVALID_CMD:
-		return "INVALID_CMD"
-	case CC_COMMAND_RET_INVALID_ADR:
-		return "INVALID_ADR"
-	case CC_COMMAND_RET_FLASH_FAIL:
-		return "FLASH_FAIL"
-	default:
-		return "NONE"
+func (c Command) String() string {
+	if str, ok := cmd2String[c]; ok {
+		return str
 	}
+	return "NONE"
 }
 
 // These constants are returned from COMMAND_GET_STATUS
@@ -102,13 +109,13 @@ func encodeSize(size int) byte {
 	return byte(size & 0xFF)
 }
 
-// encodePacket encodes a command and parameters into a packet
-func encodePacket(cmd byte, parameters []byte) []byte {
+// encodeCmdPacket encodes a command and parameters into a packet
+func encodeCmdPacket(cmd Command, parameters []byte) []byte {
 	size := 3 + len(parameters)
 	buf := make([]byte, size)
 
 	buf[0] = encodeSize(size)
-	buf[2] = cmd
+	buf[2] = byte(cmd)
 	copy(buf[3:], parameters)
 	buf[1] = checksum(buf[2:])
 	return buf
@@ -326,7 +333,7 @@ func (d *Device) RecvPacket() ([]byte, error) {
 //////////////////////////////////////////////////////////////////////
 
 func (d *Device) Ping() error {
-	return d.SendPacket(encodePacket(CC_COMMAND_PING, nil))
+	return d.SendPacket(encodeCmdPacket(CC_COMMAND_PING, nil))
 }
 
 // Download indicates to the bootloader where to store data in flash
@@ -345,7 +352,7 @@ func (d *Device) Download(address, size uint32) error {
 		byte((size >> 1) & 0xFF),
 		byte((size >> 0) & 0xFF),
 	}
-	err := d.SendPacket(encodePacket(CC_COMMAND_DOWNLOAD, data))
+	err := d.SendPacket(encodeCmdPacket(CC_COMMAND_DOWNLOAD, data))
 	if err != nil {
 		return err
 	}
@@ -365,7 +372,7 @@ func (d *Device) SendData(data []byte) error {
 	if len(data) > 255-3 {
 		return ErrBadArguments
 	}
-	return d.SendPacket(encodePacket(CC_COMMAND_SEND_DATA, data))
+	return d.SendPacket(encodeCmdPacket(CC_COMMAND_SEND_DATA, data))
 }
 
 func (d *Device) SectorErase(address uint32) error {
@@ -375,11 +382,11 @@ func (d *Device) SectorErase(address uint32) error {
 		byte((address >> 1) & 0xFF),
 		byte((address >> 0) & 0xFF),
 	}
-	return d.SendPacket(encodePacket(CC_COMMAND_SECTOR_ERASE, data))
+	return d.SendPacket(encodeCmdPacket(CC_COMMAND_SECTOR_ERASE, data))
 }
 
 func (d *Device) GetStatus() (Status, error) {
-	err := d.SendPacket(encodePacket(CC_COMMAND_GET_STATUS, nil))
+	err := d.SendPacket(encodeCmdPacket(CC_COMMAND_GET_STATUS, nil))
 	if err != nil {
 		return 0, err
 	}
@@ -394,12 +401,12 @@ func (d *Device) GetStatus() (Status, error) {
 }
 
 func (d *Device) Reset() error {
-	return d.SendPacket(encodePacket(CC_COMMAND_RESET, nil))
+	return d.SendPacket(encodeCmdPacket(CC_COMMAND_RESET, nil))
 }
 
 func (d *Device) GetChipID() (uint32, error) {
 	var id uint32
-	err := d.SendPacket(encodePacket(CC_COMMAND_GET_CHIP_ID, nil))
+	err := d.SendPacket(encodeCmdPacket(CC_COMMAND_GET_CHIP_ID, nil))
 	if err != nil {
 		return 0, err
 	}
@@ -433,7 +440,7 @@ func (d *Device) CRC32(address, size, rcount uint32) (uint32, error) {
 		byte((rcount >> 1) & 0xFF),
 		byte((rcount >> 0) & 0xFF),
 	}
-	err := d.SendPacket(encodePacket(CC_COMMAND_CRC32, data))
+	err := d.SendPacket(encodeCmdPacket(CC_COMMAND_CRC32, data))
 	if err != nil {
 		return 0, err
 	}
@@ -449,7 +456,7 @@ func (d *Device) CRC32(address, size, rcount uint32) (uint32, error) {
 }
 
 func (d *Device) BankErase() error {
-	return d.SendPacket(encodePacket(CC_COMMAND_BANK_ERASE, nil))
+	return d.SendPacket(encodeCmdPacket(CC_COMMAND_BANK_ERASE, nil))
 }
 
 func (d *Device) MemoryRead() error {
