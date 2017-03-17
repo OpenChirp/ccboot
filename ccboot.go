@@ -112,6 +112,7 @@ func (s Status) String() string {
 	}
 	return "NONE"
 }
+
 // checksum calculates the checksum of the data as specified by the
 // CC1650 bootloader spec
 func checksum(data []byte) byte {
@@ -385,6 +386,7 @@ func (d *Device) Download(address, size uint32) error {
 // indicated by the Download command is received.
 // Each time this function is called, send a GetStatus command to
 // ensure that the data was successfully programmed into the flash.
+// 252 is max data size
 func (d *Device) SendData(data []byte) error {
 	if len(data) > 255-3 {
 		return ErrBadArguments
