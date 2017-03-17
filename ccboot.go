@@ -513,4 +513,41 @@ func (d *Device) MemoryRead(address uint32, typ ReadType, count uint8) ([]byte, 
 	}
 	return data, nil
 }
+
+type CCFG_FieldID uint32
+
+const (
+	ID_SECTOR_PROT       = CCFG_FieldID(0)
+	ID_IMAGE_VALID       = CCFG_FieldID(1)
+	ID_TEST_TAP_LCK      = CCFG_FieldID(2)
+	ID_PRCM_TAP_LCK      = CCFG_FieldID(3)
+	ID_CPU_DAP_LCK       = CCFG_FieldID(4)
+	ID_WUC_TAP_LCK       = CCFG_FieldID(5)
+	ID_PBIST1_TAP_LCK    = CCFG_FieldID(6)
+	ID_PBIST2_TAP_LCK    = CCFG_FieldID(7)
+	ID_BANK_ERASE_DIS    = CCFG_FieldID(8)
+	ID_CHIP_ERASE_DIS    = CCFG_FieldID(9)
+	ID_TI_FA_ENABLE      = CCFG_FieldID(10)
+	ID_BL_BACKDOOR_EN    = CCFG_FieldID(11)
+	ID_BL_BACKDOOR_PIN   = CCFG_FieldID(12)
+	ID_BL_BACKDOOR_LEVEL = CCFG_FieldID(13)
+	ID_BL_ENABLE         = CCFG_FieldID(14)
+)
+
+func (d *Device) SetCCFG(id CCFG_FieldID, value uint32) error {
+	data := []byte{
+		byte((id >> 3) & 0xFF),
+		byte((id >> 2) & 0xFF),
+		byte((id >> 1) & 0xFF),
+		byte((id >> 0) & 0xFF),
+		byte((value >> 3) & 0xFF),
+		byte((value >> 2) & 0xFF),
+		byte((value >> 1) & 0xFF),
+		byte((value >> 0) & 0xFF),
+	}
+	err := d.SendPacket(encodeCmdPacket(CC_COMMAND_CRC32, data))
+	if err != nil {
+		return err
+	}
+	return nil
 }
