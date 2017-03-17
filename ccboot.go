@@ -86,15 +86,32 @@ func (c Command) String() string {
 	return "NONE"
 }
 
+// Status represents the status received by the GetStatus command
+type Status byte
+
 // These constants are returned from COMMAND_GET_STATUS
 const (
-	CC_COMMAND_RET_SUCCESS     Status = 0x40
-	CC_COMMAND_RET_UNKNOW_CMD  Status = 0x41
-	CC_COMMAND_RET_INVALID_CMD Status = 0x42
-	CC_COMMAND_RET_INVALID_ADR Status = 0x43
-	CC_COMMAND_RET_FLASH_FAIL  Status = 0x44
+	COMMAND_RET_SUCCESS     Status = 0x40
+	COMMAND_RET_UNKNOW_CMD  Status = 0x41
+	COMMAND_RET_INVALID_CMD Status = 0x42
+	COMMAND_RET_INVALID_ADR Status = 0x43
+	COMMAND_RET_FLASH_FAIL  Status = 0x44
 )
 
+var cmdret2String = map[Status]string{
+	COMMAND_RET_SUCCESS:     "SUCCESS",
+	COMMAND_RET_UNKNOW_CMD:  "UNKNOWN_CMD",
+	COMMAND_RET_INVALID_CMD: "INVALID_CMD",
+	COMMAND_RET_INVALID_ADR: "INVALID_ADR",
+	COMMAND_RET_FLASH_FAIL:  "FLASH_FAIL",
+}
+
+func (s Status) String() string {
+	if str, ok := cmdret2String[s]; ok {
+		return str
+	}
+	return "NONE"
+}
 // checksum calculates the checksum of the data as specified by the
 // CC1650 bootloader spec
 func checksum(data []byte) byte {
