@@ -117,15 +117,19 @@ func encodePacket(cmd byte, parameters []byte) []byte {
 // decodePacket returns the packet data or an error if the packet
 // was malformed
 func decodePacket(pkt []byte) ([]byte, error) {
+	// sanity check min size of packet
 	if len(pkt) < 3 {
 		return nil, ErrBadPacket
 	}
+	// check the size written in packet
 	if encodeSize(len(pkt)) != pkt[0] {
 		return nil, ErrBadPacket
 	}
+	// check the packet checksuum
 	if checksum(pkt[2:]) != pkt[1] {
 		return nil, ErrBadPacket
 	}
+	// return data of packet
 	return pkt[2:], nil
 }
 
@@ -316,6 +320,10 @@ func (d *Device) RecvPacket() ([]byte, error) {
 
 	return nil, ErrDevice
 }
+
+//////////////////////////////////////////////////////////////////////
+//                      High Level Commands                         //
+//////////////////////////////////////////////////////////////////////
 
 func (d *Device) Ping() error {
 	return d.SendPacket(encodePacket(CC_COMMAND_PING, nil))
