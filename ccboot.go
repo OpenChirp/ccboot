@@ -476,6 +476,41 @@ func (d *Device) BankErase() error {
 	return d.SendPacket(encodeCmdPacket(CC_COMMAND_BANK_ERASE, nil))
 }
 
-func (d *Device) MemoryRead() error {
-	return ErrNotImplemented
+type ReadType byte
+
+const (
+	ReadType8Bit  = ReadType(0)
+	ReadType32Bit = ReadType(1)
+)
+
+const (
+	ReadMaxCount8Bit  = uint8(253)
+	ReadMaxCount32Bit = uint8(63)
+)
+
+func (d *Device) MemoryRead(address uint32, typ ReadType, count uint8) ([]byte, error) {
+	if typ == ReadType8Bit && count > ReadMaxCount8Bit {
+		return nil, ErrBadArguments
+	}
+	if typ == ReadType32Bit && count > ReadMaxCount32Bit {
+		return nil, ErrBadArguments
+	}
+	data := []byte{
+		byte((address >> 3) & 0xFF),
+		byte((address >> 2) & 0xFF),
+		byte((address >> 1) & 0xFF),
+		byte((address >> 0) & 0xFF),
+		byte(typ),
+		byte(count),
+	}
+	err := d.SendPacket(encodeCmdPacket(CC_COMMAND_MEMORY_READ, data))
+	if err != nil {
+		return nil, err
+	}
+	data, err = d.RecvPacket()
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
 }
