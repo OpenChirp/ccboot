@@ -15,6 +15,7 @@ package ccboot
 
 import (
 	"io"
+	"log"
 	"time"
 
 	"errors"

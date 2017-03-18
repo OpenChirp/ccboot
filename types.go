@@ -76,16 +76,30 @@ func (c *Command) Unmarshal(data []byte) error {
 	return nil
 }
 
-func (c *Command) String() string {
+func (c Command) String() string {
 	switch c.Type {
 	case COMMAND_PING:
+		fallthrough
+	case COMMAND_GET_STATUS:
+		fallthrough
+	case COMMAND_BANK_ERASE:
+		fallthrough
+	case COMMAND_RESET:
+		fallthrough
+	case COMMAND_GET_CHIP_ID:
 		return c.Type.String()
+	case COMMAND_SECTOR_ERASE:
+		// address
+		return fmt.Sprintf("%v (addr=0x%s)", c.Type, hex.EncodeToString(c.Parameters[0:4]))
+	case COMMAND_CRC32:
+		//address, size, and read count
+		return fmt.Sprintf("%v (addr=0x%s, size=%d, read_count=%d)", c.Type, hex.EncodeToString(c.Parameters[0:4]), decodeUint32(c.Parameters[4:8]), decodeUint32(c.Parameters[8:]))
 	case COMMAND_DOWNLOAD:
-		return fmt.Sprintf("%v (addr=%s, size=%d)", c.Type, hex.EncodeToString(c.Parameters[0:3]), decodeUint32(c.Parameters[4:8]))
+		return fmt.Sprintf("%v (addr=0x%s, size=%d)", c.Type, hex.EncodeToString(c.Parameters[0:4]), decodeUint32(c.Parameters[4:8]))
 	case COMMAND_MEMORY_READ:
-		return fmt.Sprintf("%v (addr=%s, type=%v, count=%d)", c.Type, hex.EncodeToString(c.Parameters[0:3]), ReadType(c.Parameters[4]), decodeUint32(c.Parameters[5:9]))
+		return fmt.Sprintf("%v (addr=0x%s, type=%v, count=%d)", c.Type, hex.EncodeToString(c.Parameters[0:4]), ReadType(c.Parameters[4]), uint8(c.Parameters[5]))
 	default:
-		return fmt.Sprintf("%v (%s)", c.Type, hex.EncodeToString(c.Parameters))
+		return fmt.Sprintf("%v [%d]=(%s)", c.Type, len(c.Parameters), hex.EncodeToString(c.Parameters))
 	}
 }
 
