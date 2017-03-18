@@ -116,20 +116,20 @@ func (s Status) String() string {
 	return fmt.Sprintf("0x%X", byte(s))
 }
 
-type ReadType byte
+type ReadWriteType byte
 
 const (
-	ReadType8Bit  = ReadType(0)
-	ReadType32Bit = ReadType(1)
+	ReadWriteType8Bit  = ReadWriteType(0)
+	ReadWriteType32Bit = ReadWriteType(1)
 )
 
-var readType2String = map[ReadType]string{
-	ReadType8Bit:  "8BIT",
-	ReadType32Bit: "32BIT",
+var readWriteType2String = map[ReadWriteType]string{
+	ReadWriteType8Bit:  "8BIT",
+	ReadWriteType32Bit: "32BIT",
 }
 
-func (rt ReadType) String() string {
-	if str, ok := readType2String[rt]; ok {
+func (rt ReadWriteType) String() string {
+	if str, ok := readWriteType2String[rt]; ok {
 		return str
 	}
 	return fmt.Sprintf("0x%X", byte(rt))
@@ -138,6 +138,11 @@ func (rt ReadType) String() string {
 const (
 	ReadMaxCount8Bit  = uint8(253)
 	ReadMaxCount32Bit = uint8(63)
+)
+
+const (
+	WriteMaxCount8Bit  = uint8(247)
+	WriteMaxCount32Bit = uint8(244) // 32 bit aligned writes - divisible by 4
 )
 
 type CCFG_FieldID uint32

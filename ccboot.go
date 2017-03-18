@@ -365,11 +365,11 @@ func (d *Device) BankErase() error {
 	return d.SendPacket(encodeCmdPacket(COMMAND_BANK_ERASE, nil))
 }
 
-func (d *Device) MemoryRead(address uint32, typ ReadType, count uint8) ([]byte, error) {
-	if typ == ReadType8Bit && count > ReadMaxCount8Bit {
+func (d *Device) MemoryRead(address uint32, typ ReadWriteType, count uint8) ([]byte, error) {
+	if typ == ReadWriteType8Bit && count > ReadMaxCount8Bit {
 		return nil, ErrBadArguments
 	}
-	if typ == ReadType32Bit && count > ReadMaxCount32Bit {
+	if typ == ReadWriteType32Bit && count > ReadMaxCount32Bit {
 		return nil, ErrBadArguments
 	}
 	data := []byte{
@@ -389,6 +389,33 @@ func (d *Device) MemoryRead(address uint32, typ ReadType, count uint8) ([]byte, 
 		return nil, err
 	}
 	return data, nil
+}
+
+func (d *Device) MemoryWrite(address uint32, typ ReadWriteType, data []byte) error {
+	if typ == ReadWriteType8Bit && uint8(len(data)) > WriteMaxCount8Bit {
+		return ErrBadArguments
+	}
+	if typ == ReadWriteType32Bit && uint8(len(data)) > WriteMaxCount32Bit {
+		return ErrBadArguments
+	}
+
+	if (typ == ReadWriteType32Bit) && (len(data)%4 != 0) {
+		log.Printf("# Error Detected: Tying to write a non-multiple of 4 bytes in 32bit mode\n")
+	}
+
+	buf := []byte{
+		byte((address >> (3 * 8)) & 0xFF),
+		byte((address >> (2 * 8)) & 0xFF),
+		byte((address >> (1 * 8)) & 0xFF),
+		byte((address >> (0 * 8)) & 0xFF),
+		byte(typ),
+	}
+	buf = append(buf, data...)
+	err := d.SendPacket(encodeCmdPacket(COMMAND_MEMORY_WRITE, buf))
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (d *Device) SetCCFG(id CCFG_FieldID, value uint32) error {
