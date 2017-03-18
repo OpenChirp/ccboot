@@ -429,6 +429,19 @@ func encodeSize(size int) byte {
 	return byte(size & 0xFF)
 }
 
+func decodeUint32(value []byte) uint32 {
+	u := uint32(0)
+	msbShift := uint(3)
+	if len(value) < 4 {
+		msbShift = uint(len(value)) - 1
+	}
+	for i := 0; i < len(value) && i < 4; i++ {
+		u |= uint32(value[i]) << (msbShift - uint(i))
+	}
+
+	return u
+}
+
 func encodePacket(data []byte) []byte {
 	size := 2 + len(data)
 	buf := make([]byte, size)

@@ -1,5 +1,10 @@
 package ccboot
 
+import (
+	"encoding/hex"
+	"fmt"
+)
+
 // CC_SYNC contains the bootloader sync words
 var CC_SYNC = []byte{0x55, 0x55}
 
@@ -41,6 +46,13 @@ var cmd2String = map[CommandType]string{
 	COMMAND_SET_CCFG:     "COMMAND_SET_CCFG",
 }
 
+func (c CommandType) String() string {
+	if str, ok := cmd2String[c]; ok {
+		return str
+	}
+	return fmt.Sprintf("0x%X", byte(c))
+}
+
 // Command represents the command type and paramerters
 type Command struct {
 	Type       CommandType
@@ -64,11 +76,17 @@ func (c *Command) Unmarshal(data []byte) error {
 	return nil
 }
 
-func (c CommandType) String() string {
-	if str, ok := cmd2String[c]; ok {
-		return str
+func (c *Command) String() string {
+	switch c.Type {
+	case COMMAND_PING:
+		return c.Type.String()
+	case COMMAND_DOWNLOAD:
+		return fmt.Sprintf("%v (addr=%s, size=%d)", c.Type, hex.EncodeToString(c.Parameters[0:3]), decodeUint32(c.Parameters[4:8]))
+	case COMMAND_MEMORY_READ:
+		return fmt.Sprintf("%v (addr=%s, type=%v, count=%d)", c.Type, hex.EncodeToString(c.Parameters[0:3]), ReadType(c.Parameters[4]), decodeUint32(c.Parameters[5:9]))
+	default:
+		return fmt.Sprintf("%v (%s)", c.Type, hex.EncodeToString(c.Parameters))
 	}
-	return "NONE"
 }
 
 // Status represents the status received by the GetStatus command
@@ -95,7 +113,7 @@ func (s Status) String() string {
 	if str, ok := cmdret2String[s]; ok {
 		return str
 	}
-	return "NONE"
+	return fmt.Sprintf("0x%X", byte(s))
 }
 
 type ReadType byte
