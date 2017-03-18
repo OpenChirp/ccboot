@@ -103,6 +103,10 @@ func (c Command) String() string {
 	}
 }
 
+const (
+	SendDataMaxSize = 255 - 3
+)
+
 // Status represents the status received by the GetStatus command
 type Status byte
 

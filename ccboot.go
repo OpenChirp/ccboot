@@ -276,7 +276,7 @@ func (d *Device) Download(address, size uint32) error {
 // ensure that the data was successfully programmed into the flash.
 // 252 is max data size
 func (d *Device) SendData(data []byte) error {
-	if len(data) > 255-3 {
+	if len(data) > SendDataMaxSize {
 		return ErrBadArguments
 	}
 	return d.SendPacket(encodeCmdPacket(COMMAND_SEND_DATA, data))
