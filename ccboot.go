@@ -430,7 +430,7 @@ func (d *Device) SetCCFG(id CCFG_FieldID, value uint32) error {
 		byte((value >> (1 * 8)) & 0xFF),
 		byte((value >> (0 * 8)) & 0xFF),
 	}
-	err := d.SendPacket(encodeCmdPacket(COMMAND_CRC32, data))
+	err := d.SendPacket(encodeCmdPacket(COMMAND_SET_CCFG, data))
 	if err != nil {
 		return err
 	}
