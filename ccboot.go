@@ -248,14 +248,14 @@ func (d *Device) Ping() error {
 // the program address and program size are valid for the device.
 func (d *Device) Download(address, size uint32) error {
 	data := []byte{
-		byte((address >> 3) & 0xFF),
-		byte((address >> 2) & 0xFF),
-		byte((address >> 1) & 0xFF),
-		byte((address >> 0) & 0xFF),
-		byte((size >> 3) & 0xFF),
-		byte((size >> 2) & 0xFF),
-		byte((size >> 1) & 0xFF),
-		byte((size >> 0) & 0xFF),
+		byte((address >> (3 * 8)) & 0xFF),
+		byte((address >> (2 * 8)) & 0xFF),
+		byte((address >> (1 * 8)) & 0xFF),
+		byte((address >> (0 * 8)) & 0xFF),
+		byte((size >> (3 * 8)) & 0xFF),
+		byte((size >> (2 * 8)) & 0xFF),
+		byte((size >> (1 * 8)) & 0xFF),
+		byte((size >> (0 * 8)) & 0xFF),
 	}
 	err := d.SendPacket(encodeCmdPacket(COMMAND_DOWNLOAD, data))
 	if err != nil {
@@ -283,10 +283,10 @@ func (d *Device) SendData(data []byte) error {
 
 func (d *Device) SectorErase(address uint32) error {
 	data := []byte{
-		byte((address >> 3) & 0xFF),
-		byte((address >> 2) & 0xFF),
-		byte((address >> 1) & 0xFF),
-		byte((address >> 0) & 0xFF),
+		byte((address >> (3 * 8)) & 0xFF),
+		byte((address >> (2 * 8)) & 0xFF),
+		byte((address >> (1 * 8)) & 0xFF),
+		byte((address >> (0 * 8)) & 0xFF),
 	}
 	return d.SendPacket(encodeCmdPacket(COMMAND_SECTOR_ERASE, data))
 }
@@ -323,28 +323,28 @@ func (d *Device) GetChipID() (uint32, error) {
 	if len(data) != 4 {
 		return 0, ErrDevice
 	}
-	id |= uint32(data[0]) << 3
-	id |= uint32(data[1]) << 2
-	id |= uint32(data[2]) << 1
-	id |= uint32(data[3]) << 0
+	id |= uint32(data[0]) << (3 * 8)
+	id |= uint32(data[1]) << (2 * 8)
+	id |= uint32(data[2]) << (1 * 8)
+	id |= uint32(data[3]) << (0 * 8)
 	return id, nil
 }
 
 func (d *Device) CRC32(address, size, rcount uint32) (uint32, error) {
 	var crc uint32
 	data := []byte{
-		byte((address >> 3) & 0xFF),
-		byte((address >> 2) & 0xFF),
-		byte((address >> 1) & 0xFF),
-		byte((address >> 0) & 0xFF),
-		byte((size >> 3) & 0xFF),
-		byte((size >> 2) & 0xFF),
-		byte((size >> 1) & 0xFF),
-		byte((size >> 0) & 0xFF),
-		byte((rcount >> 3) & 0xFF),
-		byte((rcount >> 2) & 0xFF),
-		byte((rcount >> 1) & 0xFF),
-		byte((rcount >> 0) & 0xFF),
+		byte((address >> (3 * 8)) & 0xFF),
+		byte((address >> (2 * 8)) & 0xFF),
+		byte((address >> (1 * 8)) & 0xFF),
+		byte((address >> (0 * 8)) & 0xFF),
+		byte((size >> (3 * 8)) & 0xFF),
+		byte((size >> (2 * 8)) & 0xFF),
+		byte((size >> (1 * 8)) & 0xFF),
+		byte((size >> (0 * 8)) & 0xFF),
+		byte((rcount >> (3 * 8)) & 0xFF),
+		byte((rcount >> (2 * 8)) & 0xFF),
+		byte((rcount >> (1 * 8)) & 0xFF),
+		byte((rcount >> (0 * 8)) & 0xFF),
 	}
 	err := d.SendPacket(encodeCmdPacket(COMMAND_CRC32, data))
 	if err != nil {
@@ -354,10 +354,10 @@ func (d *Device) CRC32(address, size, rcount uint32) (uint32, error) {
 	if err != nil {
 		return 0, err
 	}
-	crc |= uint32(data[0]) << 3
-	crc |= uint32(data[1]) << 2
-	crc |= uint32(data[2]) << 1
-	crc |= uint32(data[3]) << 0
+	crc |= uint32(data[0]) << (3 * 8)
+	crc |= uint32(data[1]) << (2 * 8)
+	crc |= uint32(data[2]) << (1 * 8)
+	crc |= uint32(data[3]) << (0 * 8)
 	return crc, nil
 }
 
@@ -373,10 +373,10 @@ func (d *Device) MemoryRead(address uint32, typ ReadType, count uint8) ([]byte, 
 		return nil, ErrBadArguments
 	}
 	data := []byte{
-		byte((address >> 3) & 0xFF),
-		byte((address >> 2) & 0xFF),
-		byte((address >> 1) & 0xFF),
-		byte((address >> 0) & 0xFF),
+		byte((address >> (3 * 8)) & 0xFF),
+		byte((address >> (2 * 8)) & 0xFF),
+		byte((address >> (1 * 8)) & 0xFF),
+		byte((address >> (0 * 8)) & 0xFF),
 		byte(typ),
 		byte(count),
 	}
@@ -393,14 +393,14 @@ func (d *Device) MemoryRead(address uint32, typ ReadType, count uint8) ([]byte, 
 
 func (d *Device) SetCCFG(id CCFG_FieldID, value uint32) error {
 	data := []byte{
-		byte((id >> 3) & 0xFF),
-		byte((id >> 2) & 0xFF),
-		byte((id >> 1) & 0xFF),
-		byte((id >> 0) & 0xFF),
-		byte((value >> 3) & 0xFF),
-		byte((value >> 2) & 0xFF),
-		byte((value >> 1) & 0xFF),
-		byte((value >> 0) & 0xFF),
+		byte((id >> (3 * 8)) & 0xFF),
+		byte((id >> (2 * 8)) & 0xFF),
+		byte((id >> (1 * 8)) & 0xFF),
+		byte((id >> (0 * 8)) & 0xFF),
+		byte((value >> (3 * 8)) & 0xFF),
+		byte((value >> (2 * 8)) & 0xFF),
+		byte((value >> (1 * 8)) & 0xFF),
+		byte((value >> (0 * 8)) & 0xFF),
 	}
 	err := d.SendPacket(encodeCmdPacket(COMMAND_CRC32, data))
 	if err != nil {
@@ -436,7 +436,7 @@ func decodeUint32(value []byte) uint32 {
 		msbShift = uint(len(value)) - 1
 	}
 	for i := 0; i < len(value) && i < 4; i++ {
-		u |= uint32(value[i]) << (msbShift - uint(i))
+		u |= uint32(uint8(value[i])) << ((msbShift - uint(i)) * 8)
 	}
 
 	return u
