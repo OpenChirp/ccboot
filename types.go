@@ -2,8 +2,12 @@ package ccboot
 
 import (
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"strings"
 )
+
+var ErrParse = errors.New("Unable to parse given string")
 
 // CC_SYNC contains the bootloader sync words
 var CC_SYNC = []byte{0x55, 0x55}
@@ -206,4 +210,15 @@ func (c CCFG_FieldID) String() string {
 		return str
 	}
 	return fmt.Sprintf("0x%X", byte(c))
+}
+
+// ParseCCFGFieldID parses a string that names a CCFG Field ID and
+// returns the proper CCFG_FieldID value
+func ParseCCFGFieldID(fieldname string) (CCFG_FieldID, error) {
+	for value, name := range ccfgFieldID2String {
+		if strings.Compare(name, fieldname) == 0 {
+			return value, nil
+		}
+	}
+	return CCFG_FieldID(255), ErrParse
 }
