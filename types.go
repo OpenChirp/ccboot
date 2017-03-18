@@ -97,7 +97,7 @@ func (c Command) String() string {
 	case COMMAND_DOWNLOAD:
 		return fmt.Sprintf("%v (addr=0x%s, size=%d)", c.Type, hex.EncodeToString(c.Parameters[0:4]), decodeUint32(c.Parameters[4:8]))
 	case COMMAND_MEMORY_READ:
-		return fmt.Sprintf("%v (addr=0x%s, type=%v, count=%d)", c.Type, hex.EncodeToString(c.Parameters[0:4]), ReadType(c.Parameters[4]), uint8(c.Parameters[5]))
+		return fmt.Sprintf("%v (addr=0x%s, type=%v, count=%d)", c.Type, hex.EncodeToString(c.Parameters[0:4]), ReadWriteType(c.Parameters[4]), uint8(c.Parameters[5]))
 	default:
 		return fmt.Sprintf("%v [%d]=(%s)", c.Type, len(c.Parameters), hex.EncodeToString(c.Parameters))
 	}
