@@ -182,3 +182,28 @@ const (
 	ID_BL_BACKDOOR_LEVEL = CCFG_FieldID(13)
 	ID_BL_ENABLE         = CCFG_FieldID(14)
 )
+
+var ccfgFieldID2String = map[CCFG_FieldID]string{
+	ID_SECTOR_PROT:       "ID_SECTOR_PROT",
+	ID_IMAGE_VALID:       "ID_IMAGE_VALID",
+	ID_TEST_TAP_LCK:      "ID_TEST_TAP_LCK",
+	ID_PRCM_TAP_LCK:      "ID_PRCM_TAP_LCK",
+	ID_CPU_DAP_LCK:       "ID_CPU_DAP_LCK",
+	ID_WUC_TAP_LCK:       "ID_WUC_TAP_LCK",
+	ID_PBIST1_TAP_LCK:    "ID_PBIST1_TAP_LCK",
+	ID_PBIST2_TAP_LCK:    "ID_PBIST2_TAP_LCK",
+	ID_BANK_ERASE_DIS:    "ID_BANK_ERASE_DIS",
+	ID_CHIP_ERASE_DIS:    "ID_CHIP_ERASE_DIS",
+	ID_TI_FA_ENABLE:      "ID_TI_FA_ENABLE",
+	ID_BL_BACKDOOR_EN:    "ID_BL_BACKDOOR_EN",
+	ID_BL_BACKDOOR_PIN:   "ID_BL_BACKDOOR_PIN",
+	ID_BL_BACKDOOR_LEVEL: "ID_BL_BACKDOOR_LEVEL",
+	ID_BL_ENABLE:         "ID_BL_ENABLE",
+}
+
+func (c CCFG_FieldID) String() string {
+	if str, ok := ccfgFieldID2String[c]; ok {
+		return str
+	}
+	return fmt.Sprintf("0x%X", byte(c))
+}
