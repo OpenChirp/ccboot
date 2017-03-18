@@ -105,6 +105,18 @@ const (
 	ReadType32Bit = ReadType(1)
 )
 
+var readType2String = map[ReadType]string{
+	ReadType8Bit:  "8BIT",
+	ReadType32Bit: "32BIT",
+}
+
+func (rt ReadType) String() string {
+	if str, ok := readType2String[rt]; ok {
+		return str
+	}
+	return fmt.Sprintf("0x%X", byte(rt))
+}
+
 const (
 	ReadMaxCount8Bit  = uint8(253)
 	ReadMaxCount32Bit = uint8(63)
