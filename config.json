@@ -1,0 +1,17 @@
+{
+    "devices": {
+        "CC2650F128": {
+            "chipid": "0x8002F000",
+            "sections": {
+                ".resetVecs": {"addr":"0x00", "len":"0x3C"},
+                ".text": {"addr":"0x05EC", "len":"0x00003bf4"},
+                ".ccfg": {"addr":"0x1FFA8", "len":"0x58"} // 0x58 bytes long
+            },
+            "variables": {
+                "BL_BACKDOOR_CONFIG": {"addr": "0x0001FFD8", "bitsize": 32}
+            },
+            "flashstart": "0x00",
+            "flashlength": "0x00020000"
+        }
+    }
+}
