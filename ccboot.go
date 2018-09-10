@@ -67,6 +67,10 @@ func (d *Device) Sync() error {
 		time.Sleep(time.Millisecond * 10)
 		n, err = d.port.Read(buf)
 		if err != nil {
+			// If timedout -- try again
+			if err == io.EOF {
+				continue
+			}
 			return err
 		}
 		if n != 2 {
