@@ -10,7 +10,8 @@ import (
 var ErrParse = errors.New("Unable to parse given string")
 
 // CC_SYNC contains the bootloader sync words
-var CC_SYNC = []byte{0x00, 0x03, 0x00, 0x00, 0x55, 0x55}
+//var CC_SYNC = []byte{0x00, 0x03, 0x00, 0x00, 0x55, 0x55}
+var CC_SYNC = []byte{0x55, 0x55}
 
 const (
 	CC_ACK  byte = 0xCC
