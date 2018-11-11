@@ -166,7 +166,7 @@ func (d *Device) sendAck(ack byte) error {
 }
 
 //////////////////////////////////////////////////////////////////////
-//                   Packet Abstration Layer                        //
+//                   Packet Abstraction Layer                       //
 //////////////////////////////////////////////////////////////////////
 
 func (d *Device) SendPacket(pkt []byte) error {
