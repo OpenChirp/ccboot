@@ -171,7 +171,7 @@ func (d *Device) sendAck(ack byte) error {
 
 func (d *Device) SendPacket(pkt []byte) error {
 	for attempt := 0; attempt < numAttempts; attempt++ {
-		// fmt.Printf("Sending Packet: 0x%.2X\n", pkt)
+		// fmt.Printf("Sending Packet: 0x%s\n", hex.EncodeToString(pkt))
 		n, err := d.port.Write(pkt)
 		if err != nil {
 			return err
